@@ -18,7 +18,7 @@ BLACK = (0,0,0)
 WHITE = (255,255,255)
 
 #other variables
-SCREEN_WIDTH = 400
+SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
 SPEED = 5
 SCORE = 0
@@ -36,20 +36,30 @@ DISPLAYSURF.fill(WHITE)
 pygame.display.set_caption("Game")
 
 
-class Enemy(pygame.sprite.Sprite):
+class Booster(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("Enemy.png")
         self.rect = self.image.get_rect()
-        self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
+        self.rect.center = (600, random.randint(40, SCREEN_HEIGHT - 40))
 
     def move(self):
-        global SCORE
-        self.rect.move_ip(0,SPEED)
-        if (self.rect.top > 600):
-            SCORE += 1
-            self.rect.top = 0
-            self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
+        self.rect.move_ip(-SPEED, 0)
+        if (self.rect.left < 0):
+            self.rect.left = 600
+            self.rect.center = (600, random.randint(40, SCREEN_HEIGHT - 40))
+
+class Robot(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("evilrobot.png")
+        
+        self.rect = pygame.Rect((0, 600), (20, 600))
+    def move(self):
+        pass
+
+    
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -57,13 +67,14 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load("Player.png")
         self.rect = self.image.get_rect()
         self.rect.center = (160, 520)
+        self.fall_speed = 10
 
     def move(self):
         pressed_keys = pygame.key.get_pressed()
-        #if pressed_keys[K_UP]:
-            #self.rect.move_ip(0, -5)
-        #if pressed_keys[K_DOWN]:
-            #self.rect.move_ip(0,5)
+        if pressed_keys[K_UP]:
+            self.rect.move_ip(0, -5)
+        if pressed_keys[K_DOWN]:
+            self.rect.move_ip(0,5)
          
         if self.rect.left > 0:
               if pressed_keys[K_LEFT]:
@@ -74,14 +85,16 @@ class Player(pygame.sprite.Sprite):
 
 #setting up sprites
 P1 = Player()
-E1 = Enemy()
+E1 = Booster()
+R1 = Robot()
 
 #creating sprites group
 enemies = pygame.sprite.Group()
-enemies.add(E1)
+enemies.add(R1)
 all_sprites = pygame.sprite.Group()
 all_sprites.add(P1)
 all_sprites.add(E1)
+all_sprites.add(R1)
  
 #adding a new user event
 INC_SPEED = pygame.USEREVENT + 1 
@@ -97,7 +110,8 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
- 
+
+    DISPLAYSURF.fill(WHITE)
     DISPLAYSURF.blit(background, (0,0))
     scores = font_small.render(str(SCORE), True, BLACK)
     DISPLAYSURF.blit(scores, (10,10))
