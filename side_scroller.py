@@ -18,7 +18,7 @@ BLACK = (0,0,0)
 WHITE = (255,255,255)
 
 #other variables
-SCREEN_WIDTH = 600
+SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 SPEED = 5
 SCORE = 0
@@ -39,22 +39,21 @@ pygame.display.set_caption("Game")
 class Booster(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("Enemy.png")
+        self.image = pygame.image.load("boost.png")
         self.rect = self.image.get_rect()
-        self.rect.center = (600, random.randint(40, SCREEN_HEIGHT - 40))
+        self.rect.center = (1000, random.randint(40, SCREEN_HEIGHT - 40))
 
     def move(self):
-        self.rect.move_ip(-SPEED, 0)
+        self.rect.move_ip(-10, 0)
         if (self.rect.left < 0):
-            self.rect.left = 600
-            self.rect.center = (600, random.randint(40, SCREEN_HEIGHT - 40))
+            self.rect.left = 1000
+            self.rect.center = (1000, random.randint(40, SCREEN_HEIGHT - 40))
 
 class Robot(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("evilrobot.png")
-        
-        self.rect = pygame.Rect((0, 600), (20, 600))
+        self.image = pygame.image.load("roboto_rough.png")
+        self.rect = self.image.get_rect()
     def move(self):
         pass
 
@@ -64,24 +63,28 @@ class Robot(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__() 
-        self.image = pygame.image.load("Player.png")
+        self.image = pygame.image.load("pig.png")
         self.rect = self.image.get_rect()
-        self.rect.center = (160, 520)
-        self.fall_speed = 10
+        self.rect.center = (400, 520)
+        self.fall_speed = 1
+        self.boost = 0
 
     def move(self):
         pressed_keys = pygame.key.get_pressed()
-        if pressed_keys[K_UP]:
-            self.rect.move_ip(0, -5)
-        if pressed_keys[K_DOWN]:
-            self.rect.move_ip(0,5)
+        if self.rect.top < SCREEN_HEIGHT:
+            if pressed_keys[K_UP]:
+                self.rect.move_ip(0, -5)
+        if self.rect.top > 0:
+            if pressed_keys[K_DOWN]:
+                self.rect.move_ip(0,5)
          
-        if self.rect.left > 0:
-              if pressed_keys[K_LEFT]:
-                  self.rect.move_ip(-5, 0)
-        if self.rect.right < SCREEN_WIDTH:        
-              if pressed_keys[K_RIGHT]:
-                  self.rect.move_ip(5, 0)
+        if self.boost > 0:
+            if self.rect.right < SCREEN_WIDTH:        
+                if pressed_keys[K_RIGHT]:
+                    self.rect.move_ip(10, 0)
+                    self.boost -= 1
+
+        self.rect.move_ip(-self.fall_speed, 0)
 
 #setting up sprites
 P1 = Player()
@@ -105,7 +108,7 @@ while True:
     #Cycles through all events occuring  
     for event in pygame.event.get():
         if event.type == INC_SPEED:
-              SPEED += 2
+              SPEED += 0.5
            
         if event.type == QUIT:
             pygame.quit()
