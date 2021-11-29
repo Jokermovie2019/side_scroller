@@ -94,6 +94,8 @@ R1 = Robot()
 #creating sprites group
 enemies = pygame.sprite.Group()
 enemies.add(R1)
+boosters = pygame.sprite.Group()
+boosters.add(E1)
 all_sprites = pygame.sprite.Group()
 all_sprites.add(P1)
 all_sprites.add(E1)
@@ -126,9 +128,14 @@ while True:
         entity.move()
  
     #To be run if collision occurs between Player and Enemy
+
+    if pygame.sprite.spritecollideany(P1, boosters):
+        P1.boost += 5
+        
     if pygame.sprite.spritecollideany(P1, enemies):
         pygame.mixer.Sound('crash.wav').play()
         time.sleep(0.5)
+    
 
         DISPLAYSURF.fill(RED)
         pygame.display.update()
