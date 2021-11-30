@@ -42,12 +42,20 @@ class Booster(pygame.sprite.Sprite):
         self.image = pygame.image.load("boost.png")
         self.rect = self.image.get_rect()
         self.rect.center = (1000, random.randint(40, SCREEN_HEIGHT - 40))
+        self.wait = 0
 
     def move(self):
-        self.rect.move_ip(-10, 0)
-        if (self.rect.left < 0):
+        if self.wait ==0:
+            self.rect.move_ip(-10, 0)
+            if (self.rect.left < 0):
+                self.wait += 10
+                self.rect.left = 1000
+                self.rect.center = (1000, random.randint(40, SCREEN_HEIGHT - 40))
+    def hide(self):
+        if self.wait > 0:
             self.rect.left = 1000
             self.rect.center = (1000, random.randint(40, SCREEN_HEIGHT - 40))
+            self.wait -= 1
 
 class Robot(pygame.sprite.Sprite):
     def __init__(self):
@@ -79,7 +87,7 @@ class Player(pygame.sprite.Sprite):
                 self.rect.move_ip(0,5)
          
         if self.boost > 0:
-            if self.rect.right < SCREEN_WIDTH:        
+            if self.rect.right < (SCREEN_WIDTH-75):        
                 if pressed_keys[K_RIGHT]:
                     self.rect.move_ip(10, 0)
                     self.boost -= 1
@@ -98,7 +106,6 @@ boosters = pygame.sprite.Group()
 boosters.add(E1)
 all_sprites = pygame.sprite.Group()
 all_sprites.add(P1)
-all_sprites.add(E1)
 all_sprites.add(R1)
  
 #adding a new user event
@@ -126,11 +133,21 @@ while True:
     for entity in all_sprites:
         DISPLAYSURF.blit(entity.image, entity.rect)
         entity.move()
- 
+    
+    if E1.wait == 0:
+        DISPLAYSURF.blit(E1.image, E1.rect)
+        E1.move()
+    else:
+        E1.hide()
+    
+
+
+
     #To be run if collision occurs between Player and Enemy
 
     if pygame.sprite.spritecollideany(P1, boosters):
-        P1.boost += 5
+        P1.boost += 40
+        E1.wait += 10
         
     if pygame.sprite.spritecollideany(P1, enemies):
         pygame.mixer.Sound('crash.wav').play()
